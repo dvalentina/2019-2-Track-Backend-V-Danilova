@@ -21,6 +21,6 @@ from application.views import index
 urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
-    path('chats/', include('chats.urls')),
-    path('users/', include('users.urls')),
+    path('chat/', include('chat.urls')),
+    path('user/', include('user.urls')),
 ]

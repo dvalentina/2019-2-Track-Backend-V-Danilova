@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from users.views import profile
-from users.views import contact_list
+from user.views import profile
+from user.views import contact_list
 
 urlpatterns = [
     path('<int:id>', profile, name='profile'),
