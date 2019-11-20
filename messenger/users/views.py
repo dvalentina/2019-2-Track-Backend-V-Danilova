@@ -1,24 +1,23 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.http import HttpResponseNotAllowed, HttpResponseNotFound
+from users.models import User
 
-def profile(request, id):
+def profile(request, profile_id):
     if "GET" == request.method:
-        try:
-            profile_id = request.GET.get('profile_id')
-            #profile = Profile.objects.get(id=profile_id)
-        except Profile.DoesNotExist:
-            raise Http404
+        print(profile_id)
         return JsonResponse({'PROFILE': 'TRUE','name': 'Ivan', 'surname': 'Ivanov'})
-    else:
-        raise Http405
+    return HttpResponseNotAllowed(['GET'])
 
-def contact_list(request, id):
+def contacts(request, profile_id):
     if "GET" == request.method:
-        try:
-            profile_id = request.GET.get('profile_id')
-            #contact_list = ContactList.objects.get(id=profile_id)
-        except ContactList.DoesNotExist:
-            raise Http404
+        print(profile_id)
         return JsonResponse({'CONTACT LIST': 'TRUE', 'contact_1': 'Masha', 'contact_2': 'Sasha'})
-    else:
-        raise Http405
+    return HttpResponseNotAllowed(['GET'])
+
+def search_profile(request, user_name):
+    if "GET" == request.method:
+        profile = User.objects.all()
+        profile = profile.filter(name__contains=user_name)
+        return JsonResponse({})
+    return HttpResponseNotAllowed(['GET'])

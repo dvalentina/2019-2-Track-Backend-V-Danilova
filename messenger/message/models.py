@@ -1,7 +1,20 @@
 from django.db import models
 
 class Message(models.Model):
-    chat = models.ForeignKey('chat.Chat', on_delete=models.DO_NOTHING)
-    user = models.ForeignKey('user.User', on_delete=models.DO_NOTHING)
-    content = models.TextField()
-    added_at = models.DateTimeField()
+    class Meta:
+        verbose_name = 'сообщение'
+        verbose_name_plural = 'сообщения'
+        ordering = ['-added_at']
+        
+    chat = models.ForeignKey(
+        'chats.Chat',
+        on_delete=models.CASCADE,
+        verbose_name='чат, в котором содержится сообщение',
+        )
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        verbose_name='пользователь, отправивший сообщение',
+        )
+    content = models.TextField(verbose_name='текст сообщения')
+    added_at = models.DateTimeField(verbose_name='время отправки сообщения')
