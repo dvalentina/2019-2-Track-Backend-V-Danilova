@@ -2,4 +2,4 @@ venv/
 *.pyc
 *.swo
 *.swp
-local_settings.py
+/messenger/application/local_settings.py
