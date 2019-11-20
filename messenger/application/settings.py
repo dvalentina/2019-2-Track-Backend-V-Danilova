@@ -19,8 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&vjz95og59qv1cn6640!#4+wstvss#9!n9(ux4t%7&1nepqz(u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -37,11 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user',
-    'member',
-    'chat',
+    'users',
+    'chats',
     'message',
-    'attachment',
+    'attachments',
 ]
 
 MIDDLEWARE = [
@@ -74,20 +71,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'application.wsgi.application'
 
+AUTH_USER_MODEL = 'users.User'
+
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'quack_db',
-	'USER': 'quack',
-	'PASSWORD': 's3cr3t',
-	'HOST': '127.0.0.1',
-	'PORT': '5432',
-    }
-}
 
 
 # Password validation
