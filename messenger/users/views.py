@@ -5,13 +5,11 @@ from users.models import User
 
 def profile(request, profile_id):
     if "GET" == request.method:
-        print(profile_id)
         return JsonResponse({'PROFILE': 'TRUE','name': 'Ivan', 'surname': 'Ivanov'})
     return HttpResponseNotAllowed(['GET'])
 
 def contacts(request, profile_id):
     if "GET" == request.method:
-        print(profile_id)
         return JsonResponse({'CONTACT LIST': 'TRUE', 'contact_1': 'Masha', 'contact_2': 'Sasha'})
     return HttpResponseNotAllowed(['GET'])
 
