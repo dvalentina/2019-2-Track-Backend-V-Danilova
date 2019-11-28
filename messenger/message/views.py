@@ -1,29 +1,29 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from message.models import Message
 from chats.models import Member
 from message.forms import MessageForm
+from chats.forms import MemberForm
 
 def read_message(request):
     if "POST" == request.method:
         form = MemberForm(request.POST)
-        member_id = request.POST.get('member_id', False)
-        if member_id is False:
-            return HttpResponseBadRequest
-            
-        try:
-            member = Member.objects.get(id=member_id)
-        except Member.DoesNotExist:
-            return HttpResponseNotFound
+        if form.is_valid():
+            member = form.save(commit=False)
+        
+            messages = Message.objects.all()
+            messages = messages.filter(chat=member.chat)
+            messages = messages.order_by('-added_at')
+            last_message = messages.first()
 
-        messages = Message.objects.all()
-        messages = messages.filter(chat=member.chat)
-        messages = messages.order_by('-added_at')
-        last_message = messages.last()
-
-        member.last_read_message = last_message
-        return JsonResponse({})
+            member.last_read_message_id = last_message.id
+            member.new_messages = 0
+            member.save()
+            return JsonResponse({
+                'data': {'member id': member.id, 'last read message': member.last_read_message_id}
+            })
+        return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['GET'])
 
 def send_message(request):
@@ -40,7 +40,7 @@ def send_message(request):
 
 def get_message_list(request, chat_id):
     if "GET" == request.method:
-        messages = Message.objects.all()
+        messages = Message.objects.values('chat', 'user', 'content', 'added_at')
         messages = messages.filter(chat=chat_id)
-        return JsonResponse({})
+        return JsonResponse({'first_message': list(messages)})
     return HttpResponseNotAllowed(['GET'])

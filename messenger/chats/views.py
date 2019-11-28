@@ -1,37 +1,34 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from chats.models import Chat, Member
 from users.models import User
+from chats.forms import ChatForm
 
-def detail(request, chat_id):
+def get_detail(request, chat_id):
     if "GET" == request.method:
-        return JsonResponse({'CHAT DETAIL': ''})
+        chat = get_object_or_404(Chat, id=chat_id)
+        return JsonResponse({
+            'data': {'id': chat.id, 'topic': chat.topic}
+            })
     return HttpResponseNotAllowed(['GET'])
 
-def list(request, profile_id):
+def get_list(request, user_id):
     if "GET" == request.method:
-        list = Chat.objects.all()
-        list = list.filter(user_id=profile_id)
-        return JsonResponse({'CHAT LIST': ''})
+        chats = Chat.objects.filter(user=user_id).values(
+            'id', 'topic', 'is_group_chat'
+        )
+        return JsonResponse({'data': list(chats)})
     return HttpResponseNotAllowed(['GET'])
 
-# urls
 def create_personal_chat(request):
     if "POST" == request.method:
-        user_id = request.POST.get('user_id', False)
-        if user_id is False:
-            return HttpResponseBadRequest
-
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return HttpResponseNotFound
-
-        is_group_chat = request.POST.get('is_group_chat', False)
-        topic = request.POST.get('topic')
-
-        chat = Chat.objects.create(is_group_chat=is_group_chat, topic=topic)
-        member = Member.objects.create(user=user, chat=chat, new_messages=0)
-        return JsonResponse({})
+        form = ChatForm(request.POST)
+        if form.is_valid():
+            chat = form.save()
+            return JsonResponse({
+                'msg': 'Новый чат успешно создан',
+                'id': chat.id,
+            })
+        return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['POST'])

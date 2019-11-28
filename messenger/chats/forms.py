@@ -1,12 +1,13 @@
+from django.shortcuts import get_object_or_404
 from django import forms
 from chats.models import Chat, Member
 
 class ChatForm(forms.ModelForm):
     class Meta:
         model = Chat
-        fields = ['user', 'is_group_chat', 'topic']
+        fields = ['is_group_chat', 'topic']
 
 class MemberForm(forms.ModelForm):
     class Meta:
         model = Member
-        field = ['user', 'chat']
+        fields = ['user', 'chat']

@@ -17,4 +17,8 @@ class Message(models.Model):
         verbose_name='пользователь, отправивший сообщение',
         )
     content = models.TextField(verbose_name='текст сообщения')
-    added_at = models.DateTimeField(verbose_name='время отправки сообщения')
+    added_at = models.DateTimeField(
+        null=False,
+        auto_now=True,
+        verbose_name='время отправки сообщения',
+        )

@@ -27,5 +27,9 @@ class Member(models.Model):
         on_delete=models.CASCADE,
         verbose_name='чат, в котором состоит участник',
         )
-    new_messages = models.IntegerField()
-    last_read_message = models.ForeignKey('message.Message', on_delete=models.PROTECT)
+    new_messages = models.IntegerField(verbose_name='количество новых сообщений')
+    last_read_message = models.ForeignKey(
+        'message.Message',
+        on_delete=models.PROTECT,
+        verbose_name='последнее прочитанное сообщение',
+        )
