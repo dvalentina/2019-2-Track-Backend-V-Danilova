@@ -1,20 +1,20 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
 from message.models import Message
 from chats.models import Member
 from message.forms import MessageForm
 from chats.forms import MemberForm
 
+@login_required
 def read_message(request):
     if "POST" == request.method:
         form = MemberForm(request.POST)
         if form.is_valid():
             member = form.save(commit=False)
         
-            messages = Message.objects.all()
-            messages = messages.filter(chat=member.chat)
-            messages = messages.order_by('-added_at')
+            messages = Message.objects.filter(chat=member.chat).order_by('-added_at')
             last_message = messages.first()
 
             member.last_read_message_id = last_message.id
@@ -26,6 +26,7 @@ def read_message(request):
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['GET'])
 
+@login_required
 def send_message(request):
     if "POST" == request.method:
         form = MessageForm(request.POST)
@@ -38,9 +39,10 @@ def send_message(request):
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['POST'])
 
+@login_required
 def get_message_list(request, chat_id):
     if "GET" == request.method:
         messages = Message.objects.values('chat', 'user', 'content', 'added_at')
         messages = messages.filter(chat=chat_id)
-        return JsonResponse({'first_message': list(messages)})
+        return JsonResponse({'messages': list(messages)})
     return HttpResponseNotAllowed(['GET'])

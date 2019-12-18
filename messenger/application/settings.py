@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'chats',
     'message',
     'attachments',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'application.wsgi.application'
 
 AUTH_USER_MODEL = 'users.User'
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.instagram.InstagramOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'login'
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 
 # Database

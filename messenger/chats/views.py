@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
+from django.contrib.auth.decorators import login_required
 from chats.models import Chat, Member
 from users.models import User
 from chats.forms import ChatForm
 
+@login_required
 def get_detail(request, chat_id):
     if "GET" == request.method:
         chat = get_object_or_404(Chat, id=chat_id)
@@ -13,14 +15,16 @@ def get_detail(request, chat_id):
             })
     return HttpResponseNotAllowed(['GET'])
 
-def get_list(request, user_id):
+@login_required
+def get_list(request):
+    user_id = request.user.id
     if "GET" == request.method:
-        chats = Chat.objects.filter(user=user_id).values(
-            'id', 'topic', 'is_group_chat'
-        )
+        members = Member.objects.filter(user=user_id)
+        chats = members.values('chat')
         return JsonResponse({'data': list(chats)})
     return HttpResponseNotAllowed(['GET'])
 
+@login_required
 def create_personal_chat(request):
     if "POST" == request.method:
         form = ChatForm(request.POST)
