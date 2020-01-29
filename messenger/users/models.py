@@ -6,7 +6,8 @@ class User(AbstractUser):
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
 
-    name = models.CharField(max_length=32, verbose_name='имя пользователя')
-    nick = models.CharField(max_length=16, verbose_name='никнейм пользователя')
-    avatar = models.TextField(verbose_name='аватар пользователя')
+    username = models.CharField(max_length=32, verbose_name='пользователь')
+    name = models.CharField(max_length=32, verbose_name='имя пользователя', default='some name')
+    nick = models.CharField(max_length=16, verbose_name='никнейм пользователя', default='some nick')
+    avatar = models.TextField(verbose_name='аватар пользователя', default='some avatar')
     

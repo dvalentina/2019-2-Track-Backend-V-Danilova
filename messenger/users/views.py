@@ -4,6 +4,7 @@ from django.http import HttpResponseNotAllowed, HttpResponseNotFound, HttpRespon
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from users.models import User
+from users.forms import UserForm
 
 @login_required
 def get_profile(request, profile_id):
@@ -29,3 +30,15 @@ def search_profile(request, nick):
         )
         return JsonResponse({'Users': list(profiles)})
     return HttpResponseNotAllowed(['GET'])
+
+def create_user(request):
+    if "POST" == request.method:
+        form = UserForm(request.POST)
+        if form.is_valid():
+            new_user = form.save()
+            return JsonResponse({
+                'msg': 'Пользователь создан',
+                'id': new_user.id,
+            })
+        return JsonResponse({'errors': form.errors}, status=400)
+    return HttpResponseNotAllowed(['POST'])

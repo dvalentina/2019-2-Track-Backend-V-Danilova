@@ -26,7 +26,7 @@ def read_message(request):
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['GET'])
 
-@login_required
+# @login_required
 def send_message(request):
     if "POST" == request.method:
         form = MessageForm(request.POST)
@@ -39,7 +39,7 @@ def send_message(request):
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['POST'])
 
-@login_required
+# @login_required
 def get_message_list(request, chat_id):
     if "GET" == request.method:
         messages = Message.objects.values('chat', 'user', 'content', 'added_at')
