@@ -32,4 +32,5 @@ class Member(models.Model):
         'message.Message',
         on_delete=models.PROTECT,
         verbose_name='последнее прочитанное сообщение',
+        null=True
         )

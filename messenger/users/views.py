@@ -9,7 +9,7 @@ from users.forms import UserForm
 @login_required
 def get_profile(request, profile_id):
     if "GET" == request.method:
-        profile = User.objects.values('id', 'name', 'nick', 'avatar')
+        profile = User.objects.values('id', 'username', 'name', 'nick', 'avatar')
         profile = get_object_or_404(profile, id=profile_id)
         return JsonResponse({'PROFILE': profile})
     return HttpResponseNotAllowed(['GET'])
@@ -26,7 +26,7 @@ def get_contacts(request, profile_id):
 def search_profile(request, nick):
     if "GET" == request.method:
         profiles = User.objects.filter(Q(name__contains=nick) | Q(nick__contains=nick)).values(
-            'id', 'name', 'nick', 'avatar'
+            'id', 'username', 'name', 'nick'
         )
         return JsonResponse({'Users': list(profiles)})
     return HttpResponseNotAllowed(['GET'])
