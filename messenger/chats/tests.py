@@ -30,7 +30,6 @@ class ChatsTest(TestCase):
 
     def test_get_list(self):
         response = self.client.get('/chats/list/')
-        self.assertFalse(response.status_code == 404)
         self.assertTrue(response.status_code == 200)
         self.assertJSONEqual(response.content, '{"data": [{"chat": 0}]}')
 
