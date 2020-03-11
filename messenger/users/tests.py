@@ -38,3 +38,20 @@ class UsersTest(TestCase):
     def tearDown(self):
         print('I am done')
     
+from selenium import webdriver
+
+class SeleniumTest(TestCase):
+    def setUp(self):
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--incognito")
+        self.webdriver = webdriver.Chrome(chrome_options=chrome_options)
+        self.webdriver.implicitly_wait(10)
+        self.webdriver.get('http://localhost:8000/users/0/')
+
+    def test_login(self):    
+        elem = self.webdriver.find_element_by_link_text('Login with GitHub')
+        assert elem is not None
+        elem.click()
+
+    def tearDown(self):
+        self.webdriver.close()
