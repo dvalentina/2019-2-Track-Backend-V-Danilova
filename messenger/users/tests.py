@@ -1,5 +1,6 @@
 import json
 from django.test import TestCase, Client
+from mock import patch
 from users.models import User
 
 class UsersTest(TestCase):
@@ -34,6 +35,11 @@ class UsersTest(TestCase):
         self.assertEqual(content['Users'][1]['nick'], 'greatNickname')
         self.assertEqual(content['Users'][1]['username'], 'Test User N1')
         self.assertNotEqual(content['Users'][1]['name'], '')
+
+    @patch('users.views.create_user')
+    def test_create_user(self, create_user_mock):
+        create_user_mock()
+        self.assertTrue(create_user_mock.called)
 
     def tearDown(self):
         print('I am done')
