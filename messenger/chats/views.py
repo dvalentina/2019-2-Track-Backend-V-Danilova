@@ -2,7 +2,10 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from chats.models import Chat, Member
+from chat.serializers import ChatSerializer
 from users.models import User
 from chats.forms import ChatForm
 
@@ -36,3 +39,9 @@ def create_personal_chat(request):
             })
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['POST'])
+
+class ChatView(APIView):
+    def get(self,request):
+        chats = Chat.objects.all()
+        serializer = ChatSerializer(chats, many=True)
+        return Response({"chats": serializer.data})
