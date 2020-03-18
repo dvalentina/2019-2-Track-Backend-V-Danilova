@@ -1,5 +1,6 @@
 import json
 from django.test import TestCase, Client
+from django.urls import reverse
 from mock import patch
 from users.models import User
 
@@ -8,26 +9,24 @@ class UsersTest(TestCase):
     def setUp(self):
         self.client = Client()
 
-        self.first_user = User.objects.create(id=1, username='Test User N1', nick='greatNickname')
-        self.first_user.save()
-        self.second_user = User.objects.create(id=2, username='Test User N2', name='greatname')
-        self.second_user.save()
+        self.first_user = User.objects.create(username='Test User N1', nick='greatNickname')
+        self.second_user = User.objects.create(username='Test User N2', name='greatname')
 
         self.client.force_login(self.first_user)
 
     def test_get_profile(self):
-        response = self.client.get('/users/1/')
+        response = self.client.get(reverse('profile', kwargs={'profile_id': self.first_user.id}))
         self.assertTrue(response.status_code == 200)
         content = json.loads(response.content)
         self.assertEqual(content['PROFILE']['username'], 'Test User N1')
 
     def test_get_contacts(self):
-        response = self.client.get('/users/1/contacts/')
+        response = self.client.get(reverse('contacts', kwargs={'profile_id': self.first_user.id}))
         self.assertTrue(response.status_code == 200)
         self.assertJSONNotEqual(response.content, '{}')
 
     def test_search_profile(self):
-        response = self.client.get('/users/search/great/')
+        response = self.client.get(reverse('search profile', kwargs={'nick': 'great'}))
         self.assertTrue(response.status_code == 200)
         content = json.loads(response.content)
         self.assertEqual(content['Users'][0]['name'], 'greatname')
@@ -42,7 +41,7 @@ class UsersTest(TestCase):
         self.assertTrue(create_user_mock.called)
 
     def tearDown(self):
-        print('I am done')
+        print('users test done')
     
 from selenium import webdriver
 
@@ -55,9 +54,21 @@ class SeleniumTest(TestCase):
         self.webdriver.get('http://localhost:8000/users/0/')
 
     def test_login(self):    
-        elem = self.webdriver.find_element_by_link_text('Login with GitHub')
+        elem = self.webdriver.find_element_by_xpath('/html/body/p/a')
         assert elem is not None
         elem.click()
+        login_form = self.webdriver.find_element_by_xpath('//*[@id="login_field"]')
+        assert login_form is not None
+        password_form = self.webdriver.find_element_by_xpath('//*[@id="password"]')
+        assert password_form is not None
+        login_form.send_keys('username')
+        password_form.send_keys('password')
+        sign_in_button = self.webdriver.find_element_by_xpath('//*[@id="login"]/form/div[3]/input[9]')
+        assert sign_in_button is not None
+        sign_in_button.click()
+        failed_login_p = self.webdriver.find_element_by_xpath('//*[@id="login"]/p')
+        assert failed_login_p is not None
 
     def tearDown(self):
         self.webdriver.close()
+        print('selenium test done')
