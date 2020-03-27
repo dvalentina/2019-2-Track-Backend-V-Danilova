@@ -3,8 +3,12 @@ from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from users.models import User
 from users.forms import UserForm
+from users.serializers import UserSerializer
 
 @login_required
 def get_profile(request, profile_id):
@@ -42,3 +46,23 @@ def create_user(request):
             })
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseNotAllowed(['POST'])
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_profile(self, request, profile_id):
+        profile = self.get_queryset()
+        profile = get_object_or_404(profile, id=profile_id)
+        serializer = self.get_serializer(profile, many=False)
+        return Response({'profile': serializer.data})
+
+    @action(detail=False, methods=['get'])
+    def search_profile(self, request, nick):
+        profiles = self.get_queryset()
+        profiles = profiles.filter(Q(name__contains=nick) | Q(nick__contains=nick)).values(
+            'id', 'username', 'name', 'nick'
+        )
+        serializer = self.get_serializer(profiles, many=True)
+        return Response({'Users': serializer.data})

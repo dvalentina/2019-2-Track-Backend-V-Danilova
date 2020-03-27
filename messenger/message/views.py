@@ -6,6 +6,10 @@ from message.models import Message
 from chats.models import Member
 from message.forms import MessageForm
 from chats.forms import MemberForm
+from message.serializers import MessageSerializer
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 @login_required
 def read_message(request):
@@ -46,3 +50,39 @@ def get_message_list(request, chat_id):
         messages = messages.filter(chat=chat_id)
         return JsonResponse({'messages': list(messages)})
     return HttpResponseNotAllowed(['GET'])
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+    @action(detail=False, methods=['post'])
+    def read_message(self, request):
+        form = MemberForm(request.POST)
+        if form.is_valid():
+            member = form.save(commit=False)
+            messages = self.get_queryset()
+            messages = messages.filter(chat=member.chat).order_by('-added_at')
+            last_message = messages.first()
+
+            member.last_read_message_id = last_message.id
+            member.new_messages = 0
+            member.save()
+            serializer = self.get_serializer(messages, many=True)
+            return Response(serializer.data)
+        return JsonResponse({'errors': form.errors}, status=400)
+
+    @action(detail=False, methods=['post'])
+    def send_message(self, request):
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save()
+            serializer = self.get_serializer(message, many=False)
+            return Response(serializer.data)
+        return JsonResponse({'errors': form.errors}, status=400)
+    
+    @action(detail=False, methods=['get'])
+    def get_message_list(self, request, chat_id):
+        messages = self.get_queryset()
+        messages = messages.filter(chat=chat_id)
+        serializer = self.get_serializer(messages, many=True)
+        return Response(serializer.data)
