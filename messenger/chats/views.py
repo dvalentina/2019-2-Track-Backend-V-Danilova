@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -20,6 +21,7 @@ def get_detail(request, chat_id):
             })
     return HttpResponseNotAllowed(['GET'])
 
+@cache_page(60 * 15)
 @login_required
 def get_list(request):
     user_id = request.user.id
@@ -54,6 +56,7 @@ class ChatViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(chat, many=False)
         return Response({"chats": serializer.data})
     
+    @cache_page(60 * 15)
     @action(detail=False, methods=['get'])
     def get_list(self, request):
         user_id = request.user.id

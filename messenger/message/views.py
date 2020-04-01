@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page
 from message.models import Message
 from chats.models import Member
 from message.forms import MessageForm
@@ -47,6 +48,7 @@ def send_message(request):
     return HttpResponseNotAllowed(['POST'])
 
 # @login_required
+@cache_page(60 * 15)
 def get_message_list(request, chat_id):
     if "GET" == request.method:
         messages = Message.objects.values('chat', 'user', 'content', 'added_at')
@@ -85,6 +87,7 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return JsonResponse({'errors': form.errors}, status=400)
     
+    @cache_page(60 * 15)
     @action(detail=False, methods=['get'])
     def get_message_list(self, request, chat_id):
         messages = self.get_queryset()

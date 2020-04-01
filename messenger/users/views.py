@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import cache_page
 from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -27,6 +28,7 @@ def get_contacts(request, profile_id):
         return JsonResponse({'CONTACT LIST': 'TRUE', 'contact_1': 'Masha', 'contact_2': 'Sasha'})
     return HttpResponseNotAllowed(['GET'])
 
+@cache_page(60 * 15)
 @login_required
 def search_profile(request, nick):
     if "GET" == request.method:
@@ -60,6 +62,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(profile, many=False)
         return Response({'profile': serializer.data})
 
+    @cache_page(60 * 15)
     @action(detail=False, methods=['get'])
     def search_profile(self, request, nick):
         profiles = self.get_queryset()
