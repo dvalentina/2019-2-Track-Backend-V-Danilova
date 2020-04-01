@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseNotFound, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -35,6 +36,7 @@ def search_profile(request, nick):
         return JsonResponse({'Users': list(profiles)})
     return HttpResponseNotAllowed(['GET'])
 
+@csrf_exempt
 def create_user(request):
     if "POST" == request.method:
         form = UserForm(request.POST)

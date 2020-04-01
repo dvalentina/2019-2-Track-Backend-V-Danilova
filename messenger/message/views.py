@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from message.models import Message
 from chats.models import Member
 from message.forms import MessageForm
@@ -11,6 +12,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+@csrf_exempt
 @login_required
 def read_message(request):
     if "POST" == request.method:
@@ -31,6 +33,7 @@ def read_message(request):
     return HttpResponseNotAllowed(['GET'])
 
 # @login_required
+@csrf_exempt
 def send_message(request):
     if "POST" == request.method:
         form = MessageForm(request.POST)
@@ -55,6 +58,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
 
+    @csrf_exempt
     @action(detail=False, methods=['post'])
     def read_message(self, request):
         form = MemberForm(request.POST)
@@ -71,6 +75,7 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return JsonResponse({'errors': form.errors}, status=400)
 
+    @csrf_exempt
     @action(detail=False, methods=['post'])
     def send_message(self, request):
         form = MessageForm(request.POST)

@@ -24,7 +24,15 @@
             font-size: 3vh;
             display: flex;
         }
+
+        .g-recaptcha {
+            display: flex;
+            position: relative;
+            margin-top: 7vh;
+            margin-left: 28vw;
+        }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
     <p>
@@ -32,5 +40,6 @@
                 Login with GitHub
         </a>
     </p>
+    <div class="g-recaptcha" data-sitekey="6LdzxeUUAAAAAPMERjYEqnXMlFGIaVzGVC4IXJXK"></div>
 </body>
 </html>

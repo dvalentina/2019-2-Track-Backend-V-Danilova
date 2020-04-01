@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'snowpenguin.django.recaptcha2',
     'users',
     'chats',
     'message',
