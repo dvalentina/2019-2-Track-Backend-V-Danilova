@@ -5,3 +5,4 @@ venv/
 /messenger/application/local_settings.py
 /backups/
 .coverage
+fill_quack_db_config.py
