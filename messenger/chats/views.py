@@ -21,7 +21,7 @@ def get_detail(request, chat_id):
             })
     return HttpResponseNotAllowed(['GET'])
 
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 @login_required
 def get_list(request):
     user_id = request.user.id
