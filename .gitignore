@@ -6,3 +6,4 @@ venv/
 /backups/
 .coverage
 fill_quack_db_config.py
+config.json
