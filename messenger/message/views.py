@@ -6,12 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
 from message.models import Message
 from chats.models import Member
+from users.models import User
 from message.forms import MessageForm
 from chats.forms import MemberForm
 from message.serializers import MessageSerializer
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from cent import Client
 
 @csrf_exempt
 @login_required
@@ -40,6 +42,7 @@ def send_message(request):
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save()
+            CentrifugeClient.publish(message)
             return JsonResponse({
                 'msg': 'Сообщение отправлено',
                 'id': message.id,
@@ -83,6 +86,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         form = MessageForm(request.POST)
         if form.is_valid():
             message = form.save()
+            CentrifugeClient.publish(message)
             serializer = self.get_serializer(message, many=False)
             return Response(serializer.data)
         return JsonResponse({'errors': form.errors}, status=400)
@@ -94,3 +98,23 @@ class MessageViewSet(viewsets.ModelViewSet):
         messages = messages.filter(chat=chat_id)
         serializer = self.get_serializer(messages, many=True)
         return Response(serializer.data)
+
+class CentrifugeClient:
+    url = 'http://localhost:8001'
+    api_key = '19cfcd36-a643-4989-a288-0a2e0f662d86'
+    channel = "chats:centrifuge"
+    client = Client(url, api_key, timeout=1)
+
+    @classmethod
+    def publish(cls, message):
+        user = User.objects.get(id=message.user_id)
+        data = {
+            "status": "ok",
+            "message": {
+                'id': message.id,
+                'user_id': message.user_id,
+                'username': user.username,
+                'content': message.content,
+            }
+        }
+        cls.client.publish(cls.channel, data)
