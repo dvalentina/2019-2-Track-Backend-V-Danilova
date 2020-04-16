@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
 from message.models import Message
 from chats.models import Member
-from users.models import User
 from message.forms import MessageForm
 from chats.forms import MemberForm
 from message.serializers import MessageSerializer
@@ -51,7 +50,7 @@ def send_message(request):
     return HttpResponseNotAllowed(['POST'])
 
 # @login_required
-@cache_page(60 * 15)
+# @cache_page(60 * 15)
 def get_message_list(request, chat_id):
     if "GET" == request.method:
         messages = Message.objects.values('chat', 'user', 'content', 'added_at')
@@ -91,7 +90,7 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return JsonResponse({'errors': form.errors}, status=400)
     
-    @cache_page(60 * 15)
+    # @cache_page(60 * 15)
     @action(detail=False, methods=['get'])
     def get_message_list(self, request, chat_id):
         messages = self.get_queryset()
@@ -99,21 +98,19 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(messages, many=True)
         return Response(serializer.data)
 
-class CentrifugeClient:
+class CentrifugeClient():
     url = 'http://localhost:8001'
     api_key = '19cfcd36-a643-4989-a288-0a2e0f662d86'
-    channel = "chats:centrifuge"
+    channel = 'centrifuge'
     client = Client(url, api_key, timeout=1)
 
     @classmethod
     def publish(cls, message):
-        user = User.objects.get(id=message.user_id)
         data = {
-            "status": "ok",
-            "message": {
+            'status': 'ok',
+            'message': {
                 'id': message.id,
-                'user_id': message.user_id,
-                'username': user.username,
+                'user': message.user_id,
                 'content': message.content,
             }
         }
